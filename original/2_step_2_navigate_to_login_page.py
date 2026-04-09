@@ -39,10 +39,12 @@ def main():
     accept_facebook_cookies(driver, wait)
     fill_facebook_credentials(driver, wait, FACEBOOK_EMAIL, FACEBOOK_PASSWORD)
     click_facebook_login(driver, wait)
-    click_continue_as_button(driver, wait)
 
-    # --- MANUAL CAPTCHA / VERIFICATION PAUSE ---
+    # --- MANUAL CAPTCHA / 2FA PAUSE ---
+    # Complete any phone/email verification code Facebook requests, then type 'resume'.
     wait_for_resume()
+
+    click_continue_as_button(driver, wait)
 
     # --- RETURN TO TINDER WINDOW AFTER RESUME ---
     driver.switch_to.window(tinder_window)
@@ -82,7 +84,7 @@ def click_login_button(driver, wait):
                 (By.XPATH, "//header//a[contains(@href, 'tinder.onelink.me')]")
             )
         )
-        login_btn.click()
+        driver.execute_script("arguments[0].click();", login_btn)
         print("Clicked Tinder Login button successfully.")
     except TimeoutException:
         raise Exception("Could not find Tinder login button.")

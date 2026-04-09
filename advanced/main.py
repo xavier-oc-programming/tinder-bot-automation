@@ -41,10 +41,13 @@ def main():
         bot.accept_facebook_cookies()
         bot.fill_facebook_credentials()
         bot.click_facebook_login()
-        bot.click_continue_as()
 
-        # --- Manual pause for CAPTCHA / 2FA ---
+        # --- Manual pause for 2FA / CAPTCHA ---
+        # Facebook may ask for a verification code before showing "Continue as...".
+        # Complete any phone/email verification now, then type 'resume'.
         wait_for_resume()
+
+        bot.click_continue_as()
 
         # --- Return to Tinder and clear popups ---
         bot.return_to_tinder()

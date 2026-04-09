@@ -64,7 +64,7 @@ class TinderBot:
                     (By.XPATH, "//header//a[contains(@href, 'tinder.onelink.me')]")
                 )
             )
-            btn.click()
+            self._js_click(btn)
         except TimeoutException:
             raise RuntimeError("Could not find Tinder login button.")
 
