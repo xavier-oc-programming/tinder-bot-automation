@@ -17,11 +17,13 @@ FACEBOOK_PASSWORD = "*****"
 def main():
     # --- Setup WebDriver ---
     options = webdriver.ChromeOptions()
-    options.add_experimental_option("detach", True)
+    options.add_experimental_option(“detach”, True)
+    options.add_experimental_option(“excludeSwitches”, [“enable-automation”])
+    options.add_experimental_option(“useAutomationExtension”, False)
 
     # Disable Chrome notifications (prevents popup “tinder.com wants to show notifications”)
-    prefs = {"profile.default_content_setting_values.notifications": 2}
-    options.add_experimental_option("prefs", prefs)
+    prefs = {“profile.default_content_setting_values.notifications”: 2}
+    options.add_experimental_option(“prefs”, prefs)
 
     driver = webdriver.Chrome(options=options)
     wait = WebDriverWait(driver, 20)

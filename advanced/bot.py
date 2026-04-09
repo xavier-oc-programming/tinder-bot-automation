@@ -23,6 +23,8 @@ class TinderBot:
 
         options = webdriver.ChromeOptions()
         options.add_experimental_option("detach", True)
+        options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        options.add_experimental_option("useAutomationExtension", False)
         options.add_experimental_option(
             "prefs",
             {"profile.default_content_setting_values.notifications": 2},
