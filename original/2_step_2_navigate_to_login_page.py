@@ -154,13 +154,14 @@ def enter_phone_number(driver, wait, phone):
 
 
 def click_next(driver, wait):
-    """Click the Next button on the phone number screen."""
+    """Click the Next button on the phone number screen.
+    Uses JS click to bypass the disabled state that clears once a number is typed."""
     for xpath in [
         "//button[contains(., 'Next')]",
         "//button[normalize-space(.)='Next']",
     ]:
         try:
-            btn = wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+            btn = wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
             driver.execute_script("arguments[0].click();", btn)
             print("Clicked Next.")
             return

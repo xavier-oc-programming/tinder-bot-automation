@@ -95,11 +95,12 @@ class TinderBot:
         raise RuntimeError("Could not find phone number input field.")
 
     def click_phone_next(self):
-        """Click the Next button after entering the phone number."""
+        """Click the Next button after entering the phone number.
+        Uses JS click to bypass the disabled state that clears once a number is typed."""
         for xpath in config.XPATH_PHONE_NEXT:
             try:
-                btn = self.wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
-                self._js_click(btn)
+                btn = self.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+                self.driver.execute_script("arguments[0].click();", btn)
                 return
             except TimeoutException:
                 continue
