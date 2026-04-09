@@ -5,7 +5,7 @@ from pathlib import Path
 
 from art import LOGO
 
-ORIGINAL = Path(__file__).parent / "original" / "2_step_2_navigate_to_login_page.py"
+ORIGINAL = Path(__file__).parent / "original" / "main.py"
 ADVANCED = Path(__file__).parent / "advanced" / "main.py"
 
 
