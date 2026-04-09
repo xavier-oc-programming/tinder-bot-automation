@@ -22,7 +22,7 @@ def main():
     prefs = {“profile.default_content_setting_values.notifications”: 2}
     options.add_experimental_option(“prefs”, prefs)
 
-    driver = uc.Chrome(options=options)
+    driver = uc.Chrome(options=options, version_main=146)
     wait = WebDriverWait(driver, 20)
 
     # --- Open Tinder and store window handle ---

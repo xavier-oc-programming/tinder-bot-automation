@@ -2,7 +2,8 @@
 TINDER_URL = "https://tinder.com"
 
 # Selenium
-WAIT_TIMEOUT = 20  # seconds to wait for elements before timing out
+WAIT_TIMEOUT = 20    # seconds to wait for elements before timing out
+CHROME_VERSION = 146  # must match your installed Chrome major version
 
 # Timing / rate limits
 NOPE_DELAY = 1.2   # seconds between left swipes (too fast risks a Tinder block)

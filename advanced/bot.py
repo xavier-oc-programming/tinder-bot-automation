@@ -26,7 +26,7 @@ class TinderBot:
             "prefs",
             {"profile.default_content_setting_values.notifications": 2},
         )
-        self.driver = uc.Chrome(options=options)
+        self.driver = uc.Chrome(options=options, version_main=config.CHROME_VERSION)
         self.wait = WebDriverWait(self.driver, config.WAIT_TIMEOUT)
 
     # ------------------------------------------------------------------
