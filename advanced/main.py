@@ -44,6 +44,7 @@ def main():
         wait_for_resume()
 
         # --- Handle post-login Tinder popups ---
+        print("Dismissing popups...")
         bot.dismiss_tinder_popups()
 
         print("Login complete. Starting auto-swipe loop (LEFT = Nope)...")

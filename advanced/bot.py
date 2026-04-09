@@ -111,13 +111,15 @@ class TinderBot:
     # ------------------------------------------------------------------
 
     def dismiss_tinder_popups(self):
-        """Attempt to dismiss cookie consent, location, and notification popups."""
+        """Attempt to dismiss cookie consent, location, and notification popups.
+        Uses a short timeout — popups are optional and may not appear."""
+        short_wait = WebDriverWait(self.driver, 4)
         for xpath_list in [
             config.XPATH_COOKIE_CONSENT,
             config.XPATH_LOCATION_ALLOW,
             config.XPATH_NOTIFY_ME,
         ]:
-            self._click_first_present(xpath_list)
+            self._click_first_present(xpath_list, wait=short_wait)
 
     # ------------------------------------------------------------------
     # SWIPING
@@ -167,11 +169,12 @@ class TinderBot:
         except TimeoutException:
             pass
 
-    def _click_first_present(self, xpath_list: list):
+    def _click_first_present(self, xpath_list: list, wait=None):
         """Try each XPath in order; click the first one found, skip if none."""
+        w = wait or self.wait
         for xpath in xpath_list:
             try:
-                btn = self.wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+                btn = w.until(EC.element_to_be_clickable((By.XPATH, xpath)))
                 self._js_click(btn)
                 return
             except TimeoutException:
