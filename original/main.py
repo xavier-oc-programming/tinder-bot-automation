@@ -122,7 +122,7 @@ def click_login_with_phone(driver, wait):
             btn = wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
             driver.execute_script("arguments[0].click();", btn)
             print("Clicked 'Log in with phone number'.")
-            time.sleep(1)  # wait for phone-entry modal to finish animating in
+            time.sleep(0.3)  # wait for phone-entry modal to finish animating in
             return
         except TimeoutException:
             continue
@@ -147,7 +147,7 @@ def enter_phone_number(driver, wait, phone):
             driver.execute_script("arguments[0].focus();", phone_input)
             phone_input.clear()
             phone_input.send_keys(phone)
-            time.sleep(0.5)
+            time.sleep(0.2)
             print(f"Entered phone number: {phone}")
             return
         except TimeoutException:

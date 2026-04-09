@@ -74,7 +74,7 @@ class TinderBot:
             try:
                 btn = self.wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
                 self._js_click(btn)
-                time.sleep(1)  # wait for phone-entry modal to finish animating in
+                time.sleep(0.3)  # wait for phone-entry modal to finish animating in
                 return
             except TimeoutException:
                 continue
@@ -91,7 +91,7 @@ class TinderBot:
                 self.driver.execute_script("arguments[0].focus();", phone_input)
                 phone_input.clear()
                 phone_input.send_keys(self._phone)
-                time.sleep(0.5)  # let the Next button become active
+                time.sleep(0.2)  # let the Next button become active
                 return
             except TimeoutException:
                 continue
