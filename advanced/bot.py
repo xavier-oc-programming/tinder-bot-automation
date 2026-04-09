@@ -71,6 +71,7 @@ class TinderBot:
             try:
                 btn = self.wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
                 self._js_click(btn)
+                time.sleep(1)  # wait for phone-entry modal to finish animating in
                 return
             except TimeoutException:
                 continue
@@ -78,21 +79,31 @@ class TinderBot:
 
     def enter_phone_number(self):
         """Type the phone number into Tinder's phone input field."""
-        phone_input = self.wait.until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, config.CSS_PHONE_INPUT))
-        )
-        phone_input.clear()
-        phone_input.send_keys(self._phone)
+        css_candidates = config.CSS_PHONE_INPUT_CANDIDATES
+        for css in css_candidates:
+            try:
+                phone_input = self.wait.until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, css))
+                )
+                self.driver.execute_script("arguments[0].focus();", phone_input)
+                phone_input.clear()
+                phone_input.send_keys(self._phone)
+                time.sleep(0.5)  # let the Next button become active
+                return
+            except TimeoutException:
+                continue
+        raise RuntimeError("Could not find phone number input field.")
 
     def click_phone_next(self):
         """Click the Next button after entering the phone number."""
-        try:
-            btn = self.wait.until(
-                EC.element_to_be_clickable((By.XPATH, config.XPATH_PHONE_NEXT))
-            )
-            self._js_click(btn)
-        except TimeoutException:
-            raise RuntimeError("Could not find Next button on phone number screen.")
+        for xpath in config.XPATH_PHONE_NEXT:
+            try:
+                btn = self.wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+                self._js_click(btn)
+                return
+            except TimeoutException:
+                continue
+        raise RuntimeError("Could not find Next button on phone number screen.")
 
     # ------------------------------------------------------------------
     # POST-LOGIN TINDER POPUPS

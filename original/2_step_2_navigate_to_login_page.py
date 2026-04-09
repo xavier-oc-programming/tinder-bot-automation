@@ -120,6 +120,7 @@ def click_login_with_phone(driver, wait):
             btn = wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
             driver.execute_script("arguments[0].click();", btn)
             print("Clicked 'Log in with phone number'.")
+            time.sleep(1)  # wait for phone-entry modal to finish animating in
             return
         except TimeoutException:
             continue
@@ -128,24 +129,44 @@ def click_login_with_phone(driver, wait):
 
 def enter_phone_number(driver, wait, phone):
     """Type the phone number into Tinder's phone input."""
-    phone_input = wait.until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='tel']"))
-    )
-    phone_input.clear()
-    phone_input.send_keys(phone)
-    print(f"Entered phone number: {phone}")
+    css_candidates = [
+        "input[type='tel']",
+        "input[type='text'][placeholder*='Phone']",
+        "input[type='text'][placeholder*='phone']",
+        "input[inputmode='numeric']",
+        "input[inputmode='tel']",
+        "input[type='number']",
+    ]
+    for css in css_candidates:
+        try:
+            phone_input = WebDriverWait(driver, 5).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, css))
+            )
+            driver.execute_script("arguments[0].focus();", phone_input)
+            phone_input.clear()
+            phone_input.send_keys(phone)
+            time.sleep(0.5)
+            print(f"Entered phone number: {phone}")
+            return
+        except TimeoutException:
+            continue
+    raise Exception("Could not find phone number input field.")
 
 
 def click_next(driver, wait):
     """Click the Next button on the phone number screen."""
-    try:
-        btn = wait.until(
-            EC.element_to_be_clickable((By.XPATH, "//button[normalize-space(.)='Next']"))
-        )
-        driver.execute_script("arguments[0].click();", btn)
-        print("Clicked Next.")
-    except TimeoutException:
-        raise Exception("Could not find Next button.")
+    for xpath in [
+        "//button[contains(., 'Next')]",
+        "//button[normalize-space(.)='Next']",
+    ]:
+        try:
+            btn = wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+            driver.execute_script("arguments[0].click();", btn)
+            print("Clicked Next.")
+            return
+        except TimeoutException:
+            continue
+    raise Exception("Could not find Next button.")
 
 
 # -------------------------------------------------

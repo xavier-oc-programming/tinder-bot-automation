@@ -21,8 +21,20 @@ XPATH_LOGIN_WITH_PHONE = [
     "//button[contains(., 'Log in with phone number')]",
     "//button[contains(., 'phone number')]",
 ]
-CSS_PHONE_INPUT = "input[type='tel']"
-XPATH_PHONE_NEXT = "//button[normalize-space(.)='Next']"
+# Try multiple selectors for the phone input — Tinder's DOM varies
+CSS_PHONE_INPUT_CANDIDATES = [
+    "input[type='tel']",
+    "input[type='text'][name*='phone']",
+    "input[type='text'][placeholder*='Phone']",
+    "input[type='text'][placeholder*='phone']",
+    "input[type='number']",
+    "input[inputmode='numeric']",
+    "input[inputmode='tel']",
+]
+XPATH_PHONE_NEXT = [
+    "//button[contains(., 'Next')]",
+    "//button[normalize-space(.)='Next']",
+]
 
 # XPaths — post-login Tinder popups
 XPATH_COOKIE_CONSENT = [
