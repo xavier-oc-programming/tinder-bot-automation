@@ -52,9 +52,14 @@ XPATH_NOTIFY_ME = [
     "//button[contains(., 'No thanks')]",
 ]
 
-# XPaths — match popup close buttons
+# XPaths — mid-session popup dismiss buttons (match overlays, install prompts, etc.)
 XPATH_MATCH_CLOSE = [
     "//button[contains(., 'BACK TO TINDER')]",
     "//button[contains(., 'Back to Tinder')]",
     "//button[contains(., 'Keep Swiping')]",
+    "//button[contains(., 'Not interested')]",
+    "//button[contains(., 'Not Interested')]",
+    "//button[contains(., 'Maybe later')]",
+    "//button[contains(., 'No Thanks')]",
+    "//button[contains(., 'No thanks')]",
 ]

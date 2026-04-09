@@ -190,11 +190,16 @@ def auto_nope_loop(driver, wait, delay=1.2):
 
 
 def clear_match_popup(driver):
-    """Try to close the 'It's a match!' overlay."""
+    """Try to close match overlays and mid-session install/notification prompts."""
     for xpath in [
         "//button[contains(., 'BACK TO TINDER')]",
         "//button[contains(., 'Back to Tinder')]",
         "//button[contains(., 'Keep Swiping')]",
+        "//button[contains(., 'Not interested')]",
+        "//button[contains(., 'Not Interested')]",
+        "//button[contains(., 'Maybe later')]",
+        "//button[contains(., 'No Thanks')]",
+        "//button[contains(., 'No thanks')]",
     ]:
         try:
             btn = driver.find_element(By.XPATH, xpath)
