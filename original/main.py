@@ -17,8 +17,10 @@ def main():
     # --- Setup WebDriver ---
     options = uc.ChromeOptions()
 
-    # Disable Chrome notifications
-    prefs = {"profile.default_content_setting_values.notifications": 2}
+    prefs = {
+        "profile.default_content_setting_values.notifications": 2,  # block
+        "profile.default_content_setting_values.geolocation": 1,    # allow
+    }
     options.add_experimental_option("prefs", prefs)
 
     driver = uc.Chrome(options=options, version_main=146)

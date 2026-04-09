@@ -22,7 +22,10 @@ class TinderBot:
         options = uc.ChromeOptions()
         options.add_experimental_option(
             "prefs",
-            {"profile.default_content_setting_values.notifications": 2},
+            {
+                "profile.default_content_setting_values.notifications": 2,  # block
+                "profile.default_content_setting_values.geolocation": 1,    # allow
+            },
         )
         self.driver = uc.Chrome(options=options, version_main=config.CHROME_VERSION)
         self.wait = WebDriverWait(self.driver, config.WAIT_TIMEOUT)
