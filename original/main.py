@@ -181,13 +181,13 @@ def auto_nope_loop(driver, wait, delay=1.2):
     body = driver.find_element(By.TAG_NAME, "body")
 
     while True:
+        clear_match_popup(driver)  # proactive: dismiss any overlay before swiping
         try:
             body.send_keys(Keys.ARROW_LEFT)
             print("Nope sent.")
             time.sleep(delay)
         except Exception as e:
-            print(f"Problem sending nope: {e}. Trying to clear popups...")
-            clear_match_popup(driver)
+            print(f"Problem sending nope: {e}. Retrying after pause...")
             time.sleep(2)
 
 

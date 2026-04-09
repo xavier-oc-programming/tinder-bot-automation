@@ -51,13 +51,13 @@ def main():
 
         # --- Auto-swipe loop ---
         while True:
+            bot.clear_match_popup()  # proactive: dismiss any overlay before swiping
             try:
                 bot.swipe_left()
                 print("Nope sent.")
                 time.sleep(config.NOPE_DELAY)
             except Exception as e:
-                print(f"Swipe error: {e}. Attempting to clear popup...")
-                bot.clear_match_popup()
+                print(f"Swipe error: {e}. Retrying after pause...")
                 time.sleep(config.POPUP_CLEAR_PAUSE)
 
     except KeyboardInterrupt:
