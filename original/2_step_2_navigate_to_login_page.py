@@ -1,4 +1,4 @@
-from selenium import webdriver
+import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -16,16 +16,13 @@ FACEBOOK_PASSWORD = "*****"
 
 def main():
     # --- Setup WebDriver ---
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option(“detach”, True)
-    options.add_experimental_option(“excludeSwitches”, [“enable-automation”])
-    options.add_experimental_option(“useAutomationExtension”, False)
+    options = uc.ChromeOptions()
 
     # Disable Chrome notifications (prevents popup “tinder.com wants to show notifications”)
     prefs = {“profile.default_content_setting_values.notifications”: 2}
     options.add_experimental_option(“prefs”, prefs)
 
-    driver = webdriver.Chrome(options=options)
+    driver = uc.Chrome(options=options)
     wait = WebDriverWait(driver, 20)
 
     # --- Open Tinder and store window handle ---

@@ -1,7 +1,6 @@
 # Python 3.8+
 selenium
+undetected-chromedriver
 python-dotenv
 
-# ChromeDriver must be installed separately and match your Chrome version.
-# macOS (Homebrew):  brew install chromedriver
-# Or download from: https://chromedriver.chromium.org/downloads
+# undetected-chromedriver manages ChromeDriver automatically — no separate install needed.

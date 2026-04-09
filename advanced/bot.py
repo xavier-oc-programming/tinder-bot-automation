@@ -3,7 +3,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 import time
-from selenium import webdriver
+import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -21,15 +21,12 @@ class TinderBot:
         self._password = password
         self._tinder_window = None
 
-        options = webdriver.ChromeOptions()
-        options.add_experimental_option("detach", True)
-        options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        options.add_experimental_option("useAutomationExtension", False)
+        options = uc.ChromeOptions()
         options.add_experimental_option(
             "prefs",
             {"profile.default_content_setting_values.notifications": 2},
         )
-        self.driver = webdriver.Chrome(options=options)
+        self.driver = uc.Chrome(options=options)
         self.wait = WebDriverWait(self.driver, config.WAIT_TIMEOUT)
 
     # ------------------------------------------------------------------
