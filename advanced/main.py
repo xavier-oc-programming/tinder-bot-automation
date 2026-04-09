@@ -13,44 +13,37 @@ from bot import TinderBot
 
 
 def wait_for_resume():
-    """Pause execution until user types 'resume' (manual CAPTCHA/verification step)."""
+    """Pause execution until user types 'resume'."""
     while True:
-        user_input = input("Paused for manual action. Type 'resume' to continue: ").strip().lower()
+        user_input = input("Paused. Type 'resume' to continue: ").strip().lower()
         if user_input == "resume":
             break
         print("Not 'resume'. Still paused.")
 
 
 def main():
-    email = os.getenv("FACEBOOK_EMAIL")
-    password = os.getenv("FACEBOOK_PASSWORD")
-    if not email or not password:
-        raise RuntimeError("FACEBOOK_EMAIL and FACEBOOK_PASSWORD must be set in .env")
+    phone = os.getenv("TINDER_PHONE")
+    if not phone:
+        raise RuntimeError("TINDER_PHONE must be set in .env (local number, e.g. 611122334)")
 
-    bot = TinderBot(email=email, password=password)
+    bot = TinderBot(phone=phone)
 
     try:
         # --- Open Tinder ---
         bot.open_tinder()
         bot.accept_cookies_early()
 
-        # --- Facebook login flow ---
+        # --- Phone login flow ---
         bot.click_login_button()
-        bot.click_login_with_facebook()
-        bot.switch_to_facebook_window()
-        bot.accept_facebook_cookies()
-        bot.fill_facebook_credentials()
-        bot.click_facebook_login()
+        bot.click_login_with_phone()
+        bot.enter_phone_number()
+        bot.click_phone_next()
 
-        # --- Manual pause for 2FA / CAPTCHA ---
-        # Facebook may ask for a verification code before showing "Continue as...".
-        # Complete any phone/email verification now, then type 'resume'.
+        # --- Manual pause: enter the SMS code in the browser, then type 'resume' ---
+        print("SMS code sent to your phone. Enter it in the browser, then type 'resume'.")
         wait_for_resume()
 
-        bot.click_continue_as()
-
-        # --- Return to Tinder and clear popups ---
-        bot.return_to_tinder()
+        # --- Handle post-login Tinder popups ---
         bot.dismiss_tinder_popups()
 
         print("Login complete. Starting auto-swipe loop (LEFT = Nope)...")
