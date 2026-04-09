@@ -62,4 +62,5 @@ XPATH_MATCH_CLOSE = [
     "//button[contains(., 'Maybe later')]",
     "//button[contains(., 'No Thanks')]",
     "//button[contains(., 'No thanks')]",
+    "//button[normalize-space(.)='Allow']",  # location permission popup
 ]

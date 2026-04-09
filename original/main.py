@@ -200,6 +200,7 @@ def clear_match_popup(driver):
         "//button[contains(., 'Maybe later')]",
         "//button[contains(., 'No Thanks')]",
         "//button[contains(., 'No thanks')]",
+        "//button[normalize-space(.)='Allow']",
     ]:
         try:
             btn = driver.find_element(By.XPATH, xpath)
