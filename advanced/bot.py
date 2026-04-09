@@ -82,10 +82,10 @@ class TinderBot:
 
     def enter_phone_number(self):
         """Type the phone number into Tinder's phone input field."""
-        css_candidates = config.CSS_PHONE_INPUT_CANDIDATES
-        for css in css_candidates:
+        fast = WebDriverWait(self.driver, 3)  # short per-candidate timeout
+        for css in config.CSS_PHONE_INPUT_CANDIDATES:
             try:
-                phone_input = self.wait.until(
+                phone_input = fast.until(
                     EC.presence_of_element_located((By.CSS_SELECTOR, css))
                 )
                 self.driver.execute_script("arguments[0].focus();", phone_input)
@@ -100,9 +100,10 @@ class TinderBot:
     def click_phone_next(self):
         """Click the Next button after entering the phone number.
         Uses JS click to bypass the disabled state that clears once a number is typed."""
+        fast = WebDriverWait(self.driver, 3)  # short per-candidate timeout
         for xpath in config.XPATH_PHONE_NEXT:
             try:
-                btn = self.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+                btn = fast.until(EC.presence_of_element_located((By.XPATH, xpath)))
                 self.driver.execute_script("arguments[0].click();", btn)
                 return
             except TimeoutException:

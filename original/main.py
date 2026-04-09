@@ -36,7 +36,7 @@ def main():
     click_login_button(driver, wait)
     click_login_with_phone(driver, wait)
     enter_phone_number(driver, wait, TINDER_PHONE)
-    click_next(driver, wait)
+    click_next(driver)
 
     # --- MANUAL PAUSE: enter the SMS code in the browser ---
     print("SMS code sent to your phone. Enter it in the browser, then type 'resume'.")
@@ -141,7 +141,7 @@ def enter_phone_number(driver, wait, phone):
     ]
     for css in css_candidates:
         try:
-            phone_input = WebDriverWait(driver, 5).until(
+            phone_input = WebDriverWait(driver, 3).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, css))
             )
             driver.execute_script("arguments[0].focus();", phone_input)
@@ -155,15 +155,16 @@ def enter_phone_number(driver, wait, phone):
     raise Exception("Could not find phone number input field.")
 
 
-def click_next(driver, wait):
+def click_next(driver):
     """Click the Next button on the phone number screen.
     Uses JS click to bypass the disabled state that clears once a number is typed."""
+    fast = WebDriverWait(driver, 3)
     for xpath in [
         "//button[contains(., 'Next')]",
         "//button[normalize-space(.)='Next']",
     ]:
         try:
-            btn = wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+            btn = fast.until(EC.presence_of_element_located((By.XPATH, xpath)))
             driver.execute_script("arguments[0].click();", btn)
             print("Clicked Next.")
             return
