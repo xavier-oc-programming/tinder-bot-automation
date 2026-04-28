@@ -1,9 +1,18 @@
+import os
+
 # URLs
 TINDER_URL = "https://tinder.com"
 
 # Selenium
 WAIT_TIMEOUT = 20    # seconds to wait for elements before timing out
 CHROME_VERSION = 146  # must match your installed Chrome major version
+
+# Persistent Chrome profile — stores cookies/session so login survives restarts.
+# Set CHROME_PROFILE_DIR env var to override, or leave blank to use a temp profile.
+CHROME_PROFILE_DIR = os.environ.get(
+    "CHROME_PROFILE_DIR",
+    os.path.join(os.path.dirname(__file__), ".chrome_profile"),
+)
 
 # Timing / rate limits
 NOPE_DELAY = 1.2   # seconds between left swipes (too fast risks a Tinder block)

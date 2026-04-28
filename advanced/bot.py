@@ -27,6 +27,7 @@ class TinderBot:
                 "profile.default_content_setting_values.geolocation": 1,    # allow
             },
         )
+        options.add_argument(f"--user-data-dir={config.CHROME_PROFILE_DIR}")
         self.driver = uc.Chrome(options=options, version_main=config.CHROME_VERSION)
         self.wait = WebDriverWait(self.driver, config.WAIT_TIMEOUT)
 

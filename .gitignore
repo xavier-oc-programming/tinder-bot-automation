@@ -6,3 +6,4 @@
 .env
 *.log
 old_files/
+advanced/.chrome_profile/
