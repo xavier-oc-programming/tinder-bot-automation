@@ -18,6 +18,13 @@ CHROME_PROFILE_DIR = os.environ.get(
 NOPE_DELAY = 1.2   # seconds between left swipes (too fast risks a Tinder block)
 POPUP_CLEAR_PAUSE = 2.0  # seconds to wait after closing a match popup
 
+# XPaths — elements that only appear when already logged in (swipe screen)
+XPATH_LOGGED_IN_INDICATORS = [
+    "//button[@aria-label='Nope']",
+    "//button[@aria-label='Like']",
+    "//main[@aria-label='Tinder']",
+]
+
 # XPaths — Tinder cookie / privacy banner (appears on home page)
 XPATH_COOKIE_EARLY = [
     "//button[contains(., 'I accept')]",

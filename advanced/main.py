@@ -33,19 +33,22 @@ def main():
         bot.open_tinder()
         bot.accept_cookies_early()
 
-        # --- Phone login flow ---
-        bot.click_login_button()
-        bot.click_login_with_phone()
-        bot.enter_phone_number()
-        bot.click_phone_next()
+        if bot.is_logged_in():
+            print("Already logged in — skipping login flow.")
+        else:
+            # --- Phone login flow ---
+            bot.click_login_button()
+            bot.click_login_with_phone()
+            bot.enter_phone_number()
+            bot.click_phone_next()
 
-        # --- Manual pause: enter the SMS code in the browser, then type 'resume' ---
-        print("SMS code sent to your phone. Enter it in the browser, then type 'resume'.")
-        wait_for_resume()
+            # --- Manual pause: enter the SMS code in the browser, then type 'resume' ---
+            print("SMS code sent to your phone. Enter it in the browser, then type 'resume'.")
+            wait_for_resume()
 
-        # --- Handle post-login Tinder popups ---
-        print("Dismissing popups...")
-        bot.dismiss_tinder_popups()
+            # --- Handle post-login Tinder popups ---
+            print("Dismissing popups...")
+            bot.dismiss_tinder_popups()
 
         print("Login complete. Starting auto-swipe loop (LEFT = Nope)...")
 

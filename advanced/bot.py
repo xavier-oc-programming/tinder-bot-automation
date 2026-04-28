@@ -39,6 +39,23 @@ class TinderBot:
         """Navigate to Tinder."""
         self.driver.get(config.TINDER_URL)
 
+    def is_logged_in(self) -> bool:
+        """Return True if we land on the swipe/app screen (session still valid)."""
+        try:
+            WebDriverWait(self.driver, 6).until(
+                lambda d: "/app" in d.current_url or d.find_elements(By.TAG_NAME, "body")
+                and any(
+                    d.find_elements(By.XPATH, x)
+                    for x in config.XPATH_LOGGED_IN_INDICATORS
+                )
+            )
+            return any(
+                self.driver.find_elements(By.XPATH, x)
+                for x in config.XPATH_LOGGED_IN_INDICATORS
+            )
+        except Exception:
+            return False
+
     # ------------------------------------------------------------------
     # LOGIN FLOW
     # ------------------------------------------------------------------
