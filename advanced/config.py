@@ -2,6 +2,7 @@ import os
 
 # URLs
 TINDER_URL = "https://tinder.com"
+TINDER_APP_URL = "https://tinder.com/app/recs"
 
 # Selenium
 WAIT_TIMEOUT = 20    # seconds to wait for elements before timing out
@@ -17,13 +18,6 @@ CHROME_PROFILE_DIR = os.environ.get(
 # Timing / rate limits
 NOPE_DELAY = 1.2   # seconds between left swipes (too fast risks a Tinder block)
 POPUP_CLEAR_PAUSE = 2.0  # seconds to wait after closing a match popup
-
-# XPaths — elements that only appear when already logged in (swipe screen)
-XPATH_LOGGED_IN_INDICATORS = [
-    "//button[@aria-label='Nope']",
-    "//button[@aria-label='Like']",
-    "//main[@aria-label='Tinder']",
-]
 
 # XPaths — Tinder cookie / privacy banner (appears on home page)
 XPATH_COOKIE_EARLY = [
