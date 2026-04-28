@@ -55,9 +55,10 @@ class TinderBot:
 
     def accept_cookies_early(self):
         """Click Tinder's initial cookie/privacy banner if it appears."""
+        quick = WebDriverWait(self.driver, 3)
         for xpath in config.XPATH_COOKIE_EARLY:
             try:
-                btn = self.wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+                btn = quick.until(EC.element_to_be_clickable((By.XPATH, xpath)))
                 self._js_click(btn)
                 return
             except TimeoutException:
