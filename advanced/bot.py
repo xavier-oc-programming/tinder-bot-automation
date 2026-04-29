@@ -126,8 +126,15 @@ class TinderBot:
         raise RuntimeError("Could not find Next button on phone number screen.")
 
     def redact_phone_from_page(self):
-        """Replace the phone number in Tinder's OTP confirmation text with asterisks."""
+        """Wait for the OTP screen to render, then replace the phone number with asterisks."""
         masked = "*" * max(0, len(self._phone) - 3) + self._phone[-3:]
+        try:
+            # Wait until Tinder has rendered the phone number on screen
+            WebDriverWait(self.driver, 8).until(
+                lambda d: self._phone in d.page_source
+            )
+        except TimeoutException:
+            return
         self.driver.execute_script("""
             var phone = arguments[0], masked = arguments[1];
             document.querySelectorAll('*').forEach(function(el) {
