@@ -12,6 +12,11 @@ import config
 from bot import TinderBot
 
 
+def mask_phone(phone: str) -> str:
+    """Return phone with all but the last 3 digits replaced by *."""
+    return "*" * max(0, len(phone) - 3) + phone[-3:]
+
+
 def wait_for_resume():
     """Pause execution until user types 'resume'."""
     while True:
@@ -43,7 +48,7 @@ def main():
             bot.click_phone_next()
 
             # --- Manual pause: enter the SMS code in the browser, then type 'resume' ---
-            print("SMS code sent to your phone. Enter it in the browser, then type 'resume'.")
+            print(f"SMS code sent to {mask_phone(phone)}. Enter it in the browser, then type 'resume'.")
             wait_for_resume()
 
             # --- Handle post-login Tinder popups ---

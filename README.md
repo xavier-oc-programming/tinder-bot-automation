@@ -1,11 +1,14 @@
 # Auto Tinder Bot
 
-Selenium bot that logs into Tinder via Facebook OAuth and automatically swipes left on profiles.
+Selenium bot that logs into Tinder via phone number and automatically swipes left on profiles.
 
-Open Chrome, navigate to Tinder, log in through Facebook, survive a wall of popups, and then
-type `resume` — the bot takes over and sends a LEFT ARROW (Nope) keystroke every 1.2 seconds.
-Profiles scroll past automatically; if a match overlay appears it is closed and swiping resumes.
-The bot runs until you press Ctrl+C or close the terminal.
+Open Chrome, navigate to Tinder, log in with your phone number, enter the SMS code when
+prompted, then type `resume` — the bot takes over and sends a LEFT ARROW (Nope) keystroke
+every 1.2 seconds. Profiles scroll past automatically; if a match overlay appears it is closed
+and swiping resumes. The bot runs until you press Ctrl+C or close the terminal.
+
+On subsequent runs the bot reuses a persistent Chrome profile, so if your Tinder session is
+still active it skips the login flow entirely and jumps straight to swiping.
 
 There are two builds in this repo. **original/** contains the course script exactly as written
 during the Day 50 lesson — one file, all logic inline, credentials stored in constants
@@ -14,8 +17,8 @@ design: a `TinderBot` class owns every Selenium interaction, `config.py` central
 XPath and timing constant, and `main.py` orchestrates the flow. Credentials move to `.env` so
 nothing sensitive is ever committed.
 
-This project uses only the browser and Facebook's standard OAuth flow — no Tinder API, no
-third-party services. Selenium drives a real Chrome instance.
+This project uses only the browser and Tinder's standard phone-number login flow — no Tinder
+API, no third-party services. Selenium drives a real Chrome instance via `undetected-chromedriver`.
 
 ---
 
@@ -41,38 +44,31 @@ third-party services. Selenium drives a real Chrome instance.
 
 ## 1. Prerequisites
 
-### Facebook account
+### Phone number
 
-You need a Facebook account connected to your Tinder profile. The bot logs into Tinder
-using the "Login with Facebook" OAuth flow.
+You need a phone number connected to your Tinder profile. The bot logs in using Tinder's
+phone-number login flow and waits for you to enter the SMS verification code manually.
 
-| `.env` variable    | Where to find it                          |
-|--------------------|-------------------------------------------|
-| `FACEBOOK_EMAIL`   | Your Facebook login email address         |
-| `FACEBOOK_PASSWORD`| Your Facebook account password            |
+| `.env` variable | Where to find it                                     |
+|-----------------|------------------------------------------------------|
+| `TINDER_PHONE`  | Your phone number (local format, e.g. `611122334`)   |
 
-**Gotcha:** Facebook may present a CAPTCHA or two-factor verification prompt during login.
-The bot pauses and waits for you to type `resume` after completing any manual step.
+**Gotcha:** The bot pauses after submitting the phone number and waits for you to type
+`resume` once you have entered the SMS code in the browser.
 
-**Gotcha:** The XPaths targeting Tinder and Facebook popup buttons are brittle — Tinder's
-DOM changes frequently. If the bot fails to click a button, inspect the element in Chrome
-DevTools and update the relevant constant in `advanced/config.py`.
+**Gotcha:** The XPaths targeting Tinder's buttons are brittle — Tinder's DOM changes
+frequently. If the bot fails to click a button, inspect the element in Chrome DevTools and
+update the relevant constant in `advanced/config.py`.
 
-### ChromeDriver
+### Chrome version
 
-Selenium requires ChromeDriver to match your installed Chrome version.
+`undetected-chromedriver` requires you to set `CHROME_VERSION` in `advanced/config.py` to
+match your installed Chrome major version number.
 
-```
-# macOS (Homebrew)
-brew install chromedriver
-
-# Or download manually and add to PATH:
-# https://chromedriver.chromium.org/downloads
-```
-
-Verify ChromeDriver is on your PATH:
-```
-chromedriver --version
+```bash
+# Find your Chrome version:
+google-chrome --version      # Linux
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version  # macOS
 ```
 
 ---
@@ -81,13 +77,12 @@ chromedriver --version
 
 ```bash
 pip install -r requirements.txt
-cp .env.example .env        # fill in FACEBOOK_EMAIL and FACEBOOK_PASSWORD
+cp .env.example .env        # fill in TINDER_PHONE
 python menu.py              # select 1 or 2, or run builds directly
 ```
 
-Run builds directly:
+Run the advanced build directly:
 ```bash
-python original/2_step_2_navigate_to_login_page.py
 python advanced/main.py
 ```
 
@@ -95,16 +90,17 @@ python advanced/main.py
 
 ## 3. Builds comparison
 
-| Feature                       | original/              | advanced/                     |
-|-------------------------------|------------------------|-------------------------------|
-| Structure                     | Single file            | config + bot + main           |
-| Credentials                   | Hardcoded (redacted)   | `.env` via python-dotenv      |
-| Facebook login logic          | Module-level functions | `TinderBot` class methods     |
-| Popup handling                | Repeated try/except    | `_click_if_present` helper    |
-| XPaths / constants            | Inline literals        | All in `config.py`            |
-| Error boundary                | `sys.exit` style       | Raises exceptions to `main`   |
-| Browser cleanup               | Not guaranteed         | `finally: bot.quit()`         |
-| Importable / testable         | No                     | Yes (`TinderBot` is importable)|
+| Feature                       | original/              | advanced/                          |
+|-------------------------------|------------------------|------------------------------------|
+| Structure                     | Single file            | config + bot + main                |
+| Credentials                   | Hardcoded (redacted)   | `.env` via python-dotenv           |
+| Login method                  | Phone number           | Phone number                       |
+| Persistent Chrome profile     | No                     | Yes — skips login if session alive |
+| Popup handling                | Repeated try/except    | `_click_if_present` helper         |
+| XPaths / constants            | Inline literals        | All in `config.py`                 |
+| Error boundary                | `sys.exit` style       | Raises exceptions to `main`        |
+| Browser cleanup               | Not guaranteed         | `finally: bot.quit()`              |
+| Importable / testable         | No                     | Yes (`TinderBot` is importable)    |
 
 ---
 
@@ -116,9 +112,8 @@ python advanced/main.py
 python original/2_step_2_navigate_to_login_page.py
 ```
 
-Edit `FACEBOOK_EMAIL` and `FACEBOOK_PASSWORD` at the top of the file (lines 13–14) with
-your real credentials before running. The script opens Chrome, logs in, and starts swiping.
-When prompted, complete any CAPTCHA manually then type `resume`.
+Edit `TINDER_PHONE` at the top of the file with your phone number before running. The script
+opens Chrome, navigates to Tinder, and starts the phone-number login flow.
 
 ### advanced
 
@@ -127,20 +122,31 @@ When prompted, complete any CAPTCHA manually then type `resume`.
 python advanced/main.py
 ```
 
-Example terminal output:
+**First run** — logs in via phone number. The bot pauses after submitting your number;
+enter the SMS code in the browser, then type `resume`. Tinder session is saved to
+`advanced/.chrome_profile/`.
+
+**Subsequent runs** — the bot navigates straight to `tinder.com/app/recs`. If the session is
+still active it prints `Already logged in — skipping login flow.` and starts swiping immediately.
+
+Example terminal output (first run):
 ```
-Clicked Tinder Login button successfully.
-Clicked 'Login with Facebook' successfully.
-Switched to Facebook login window.
-Filled in Facebook credentials successfully.
-Clicked Facebook 'Log In' button (normal click).
-Paused for manual action. Type 'resume' to continue: resume
+SMS code sent to your phone. Enter it in the browser, then type 'resume'.
+Paused. Type 'resume' to continue: resume
+Dismissing popups...
 Login complete. Starting auto-swipe loop (LEFT = Nope)...
 Nope sent.
 Nope sent.
 Nope sent.
-Swipe error: element not interactable. Attempting to clear popup...
-Closed match popup.
+Swipe error: element not interactable. Retrying after pause...
+Nope sent.
+```
+
+Example terminal output (returning run):
+```
+Already logged in — skipping login flow.
+Login complete. Starting auto-swipe loop (LEFT = Nope)...
+Nope sent.
 Nope sent.
 ```
 
@@ -152,20 +158,20 @@ Press **Ctrl+C** to stop. The browser closes cleanly.
 
 ```
 Input          → Fetch             → Process          → Output
-.env creds       Selenium opens      WebDriverWait       ARROW_LEFT
-(email +         Chrome, navigates   locates buttons,    keystroke sent
-password)        to tinder.com,      JS-clicks them,     to browser;
-                 handles Facebook    handles popups      Tinder registers
-                 OAuth popup         and match overlays  a left swipe
+.env phone       Selenium opens      WebDriverWait       ARROW_LEFT
+number           Chrome with         locates buttons,    keystroke sent
+                 persistent          JS-clicks them,     to browser;
+                 profile, navigates  handles popups      Tinder registers
+                 to /app/recs        and match overlays  a left swipe
 ```
 
-1. **Load** — `main.py` reads `FACEBOOK_EMAIL` and `FACEBOOK_PASSWORD` from `.env`.
-2. **Open** — `TinderBot.__init__` launches Chrome with notifications disabled.
-3. **Navigate** — `open_tinder()` loads `https://tinder.com`; window handle is stored.
-4. **Cookie banner** — `accept_cookies_early()` clicks the initial consent button.
-5. **Login** — `click_login_button()` → `click_login_with_facebook()` → Facebook popup opens.
-6. **Facebook window** — driver switches to popup; cookies accepted, credentials filled, Log In clicked, "Continue as..." clicked.
-7. **Manual pause** — bot prints prompt; user handles CAPTCHA/2FA if needed, then types `resume`.
+1. **Load** — `main.py` reads `TINDER_PHONE` from `.env`.
+2. **Open** — `TinderBot.__init__` launches Chrome with the persistent profile and notification prefs.
+3. **Navigate** — `open_tinder()` loads `https://tinder.com/app/recs`.
+4. **Session check** — `is_logged_in()` checks whether the URL stayed on `/app`; if yes, skip to step 8.
+5. **Cookie banner** — `accept_cookies_early()` clicks the initial consent button if present.
+6. **Login** — `click_login_button()` → `click_login_with_phone()` → phone number entered → Next clicked.
+7. **Manual pause** — bot prints prompt; user enters SMS code in browser, then types `resume`.
 8. **Tinder popups** — `dismiss_tinder_popups()` closes cookie consent, location, and notify-me dialogs.
 9. **Swipe loop** — `while True`: send `ARROW_LEFT`, sleep 1.2 s; on exception: clear match popup, sleep 2 s.
 
@@ -175,11 +181,11 @@ password)        to tinder.com,      JS-clicks them,     to browser;
 
 ### Both builds
 
-**Facebook OAuth login** — Navigates the multi-window Facebook login flow: opens the popup,
-accepts cookie consent, fills credentials, clicks Log In, and confirms "Continue as...".
+**Phone number login** — Navigates Tinder's phone-number login flow: clicks "Log in",
+selects "Log in with phone number", types the number, and clicks Next.
 
-**Manual CAPTCHA pause** — Execution suspends after login and waits for the user to type
-`resume`. This handles Facebook's occasional CAPTCHA or 2FA prompts.
+**Manual SMS pause** — Execution suspends after submitting the phone number and waits for
+the user to type `resume` once the SMS code has been entered in the browser.
 
 **Popup dismissal** — Handles Tinder's post-login overlay sequence: cookie/privacy consent,
 location permission, and notification prompt.
@@ -192,14 +198,21 @@ working, the bot attempts to click "Back to Tinder" or "Keep Swiping" before res
 
 ### Advanced build only
 
+**Persistent Chrome profile** — Chrome launches with `--user-data-dir` pointing to
+`advanced/.chrome_profile/`. Cookies and session data survive between runs, so you only need
+to log in once.
+
+**Session detection** — On startup the bot navigates to `tinder.com/app/recs` and checks the
+resulting URL. If Tinder kept it on `/app`, the session is live and the login flow is skipped.
+
 **OOP encapsulation** — All Selenium calls live inside `TinderBot`. `main.py` reads like a
-script; the class is importable and testable independently.
+plain English script; the class is importable and testable independently.
 
 **Centralised config** — Every XPath, URL, timeout, and delay lives in `config.py`. Updating
 a broken selector requires changing exactly one line.
 
-**`.env` credentials** — `FACEBOOK_EMAIL` and `FACEBOOK_PASSWORD` are loaded from `.env` at
-runtime. Nothing sensitive is committed.
+**`.env` credentials** — `TINDER_PHONE` is loaded from `.env` at runtime. Nothing sensitive
+is committed.
 
 **JS click fallback** — `_js_click()` first attempts a normal Selenium click; if the element
 is overlapped or not interactable it falls back to `driver.execute_script("arguments[0].click()")`.
@@ -233,54 +246,44 @@ python menu.py
 START
   │
   ▼
-Load .env credentials
+Load .env (TINDER_PHONE)
   │
   ▼
-Launch Chrome (notifications disabled)
+Launch Chrome with persistent profile
   │
   ▼
-Open https://tinder.com ──────────────────── cookie banner? → click Accept
+Navigate to tinder.com/app/recs
   │
   ▼
-Click "Log in" button
-  │
-  ▼
-Click "Login with Facebook"
-  │
-  ▼
-Facebook popup opens → switch driver to popup window
-  │
-  ├── Facebook cookie banner? → click Allow
-  │
-  ▼
-Fill email + password → click Log In
-  │
-  ├── "Continue as..." button? → click it
-  │
-  ▼
-PAUSE — user handles CAPTCHA/2FA manually, then types 'resume'
-  │
-  ▼
-Switch back to Tinder window
-  │
-  ▼
-Dismiss Tinder popups (cookie consent → location → notify-me)
+is_logged_in()? ──── YES ──────────────────────────────────┐
+  │                                                         │
+  NO                                                        │
+  │                                                         │
+  ▼                                                         │
+accept_cookies_early() (optional banner)                    │
+  │                                                         │
+  ▼                                                         │
+Click "Log in" → "Log in with phone number"                 │
+  │                                                         │
+  ▼                                                         │
+Enter phone number → click Next                             │
+  │                                                         │
+  ▼                                                         │
+PAUSE — user enters SMS code in browser, types 'resume'     │
+  │                                                         │
+  ▼                                                         │
+dismiss_tinder_popups() ◄───────────────────────────────────┘
   │
   ▼
 ┌─────────────────────────────────┐
 │  SWIPE LOOP (while True)        │
 │                                 │
+│  clear_match_popup()            │
 │  send ARROW_LEFT (Nope)         │
 │    │                            │
 │    ├── success → sleep 1.2 s   │
 │    │                            │
-│    └── exception                │
-│          │                      │
-│          ▼                      │
-│     clear_match_popup()         │
-│       ├── found → JS click      │
-│       └── not found → pass      │
-│     sleep 2 s                   │
+│    └── exception → sleep 2 s   │
 └──────────────── ◄ loop ─────────┘
   │
   ▼ (Ctrl+C)
@@ -296,8 +299,8 @@ STOP
 day-50-auto-tinder-bot/
 │
 ├── menu.py                    # terminal menu — launches either build
-├── art.py                     # LOGO ascii art
-├── requirements.txt           # pip packages + ChromeDriver note
+├── art.py                     # ASCII art logo
+├── requirements.txt           # pip packages
 ├── .env.example               # template for credentials
 ├── .env                       # real credentials — gitignored
 ├── .gitignore
@@ -313,7 +316,8 @@ day-50-auto-tinder-bot/
 ├── advanced/
 │   ├── config.py              # all constants: URLs, XPaths, timeouts, delays
 │   ├── bot.py                 # TinderBot class — all Selenium logic
-│   └── main.py                # orchestrator — login flow + swipe loop
+│   ├── main.py                # orchestrator — login flow + swipe loop
+│   └── .chrome_profile/       # persistent Chrome session (gitignored)
 │
 └── docs/
     └── COURSE_NOTES.md        # original exercise description + concepts
@@ -327,23 +331,21 @@ day-50-auto-tinder-bot/
 
 | Method | Returns | Description |
 |---|---|---|
-| `__init__(email, password)` | `TinderBot` | Stores credentials; launches Chrome with notification prefs disabled |
-| `open_tinder()` | `None` | Navigates to `TINDER_URL`; stores the window handle |
-| `return_to_tinder()` | `None` | Switches driver focus back to the Tinder window |
-| `accept_cookies_early()` | `None` | Clicks Tinder's initial cookie banner if present |
+| `__init__(phone)` | `TinderBot` | Stores phone number; launches Chrome with persistent profile and notification prefs disabled |
+| `open_tinder()` | `None` | Navigates to `TINDER_APP_URL` (`/app/recs`) |
+| `is_logged_in()` | `bool` | Returns `True` if the URL stayed on `/app` after navigation (session alive) |
+| `accept_cookies_early()` | `None` | Clicks Tinder's initial cookie banner if present (3 s timeout) |
 | `click_login_button()` | `None` | Clicks the main "Log in" button; raises `RuntimeError` on timeout |
-| `click_login_with_facebook()` | `None` | Clicks "Login with Facebook" in the modal; raises `RuntimeError` on failure |
-| `switch_to_facebook_window()` | `None` | Switches focus to the Facebook OAuth popup; raises `RuntimeError` if not found |
-| `accept_facebook_cookies()` | `None` | Clicks "Allow all cookies" in the Facebook popup if it appears |
-| `fill_facebook_credentials()` | `None` | Clears and types email + password into the Facebook login form |
-| `click_facebook_login()` | `None` | Clicks Facebook's "Log In" button; raises `RuntimeError` on timeout |
-| `click_continue_as()` | `None` | Clicks "Continue as [Name]"; silently skips if not found |
+| `click_login_with_phone()` | `None` | Clicks "Log in with phone number" in the modal; raises `RuntimeError` on failure |
+| `enter_phone_number()` | `None` | Finds the phone input and types the number from `.env` |
+| `click_phone_next()` | `None` | JS-clicks the Next button after the phone number is entered |
 | `dismiss_tinder_popups()` | `None` | Clicks cookie consent, location allow, and notify-me buttons in sequence |
 | `swipe_left()` | `None` | Sends `Keys.ARROW_LEFT` to the page `<body>` (Nope) |
 | `clear_match_popup()` | `None` | Attempts to close a match overlay via known XPaths |
 | `quit()` | `None` | Calls `driver.quit()` to close the browser |
 | `_js_click(element)` | `None` | Normal click with JS fallback (internal) |
 | `_click_if_present(xpath)` | `None` | Click by XPath; silently skip on `TimeoutException` (internal) |
+| `_click_first_present(xpath_list)` | `None` | Try each XPath; click the first found (internal) |
 
 ---
 
@@ -354,16 +356,19 @@ All constants live in `advanced/config.py`.
 | Constant | Default | Description |
 |---|---|---|
 | `TINDER_URL` | `"https://tinder.com"` | Tinder homepage URL |
+| `TINDER_APP_URL` | `"https://tinder.com/app/recs"` | Deep link to the swipe screen |
+| `CHROME_PROFILE_DIR` | `advanced/.chrome_profile/` | Persistent Chrome user data directory (overrideable via env var) |
 | `WAIT_TIMEOUT` | `20` | Seconds `WebDriverWait` waits before timing out |
+| `CHROME_VERSION` | `146` | Chrome major version — must match your installed Chrome |
 | `NOPE_DELAY` | `1.2` | Seconds to sleep between left swipes |
 | `POPUP_CLEAR_PAUSE` | `2.0` | Seconds to sleep after closing a match popup |
 | `XPATH_COOKIE_EARLY` | `[...]` | XPath candidates for the initial cookie banner |
-| `XPATH_COOKIE_CONSENT` | `"..."` | XPath for post-login cookie consent button |
-| `XPATH_LOCATION_ALLOW` | `"..."` | XPath for location permission allow button |
-| `XPATH_NOTIFY_ME` | `"..."` | XPath for the notify-me button |
-| `XPATH_FB_COOKIE` | `"..."` | XPath for Facebook's "Allow all cookies" button |
-| `XPATH_FB_LOGIN_BTN` | `"..."` | XPath for Facebook's "Log In" submit button |
-| `XPATH_FB_CONTINUE_AS` | `[...]` | XPath candidates for "Continue as [Name]" |
+| `XPATH_LOGIN_WITH_PHONE` | `[...]` | XPath candidates for the "Log in with phone number" button |
+| `CSS_PHONE_INPUT_CANDIDATES` | `[...]` | CSS selectors tried in order to find the phone input field |
+| `XPATH_PHONE_NEXT` | `[...]` | XPath candidates for the Next button after phone entry |
+| `XPATH_COOKIE_CONSENT` | `[...]` | XPath for post-login cookie consent button |
+| `XPATH_LOCATION_ALLOW` | `[...]` | XPath for location permission allow button |
+| `XPATH_NOTIFY_ME` | `[...]` | XPath for the notify-me / not-interested button |
 | `XPATH_MATCH_CLOSE` | `[...]` | XPath candidates for match popup close buttons |
 
 ---
@@ -374,8 +379,7 @@ This project has no file input or output. All interaction is with the live Tinde
 
 **Credential format** (`.env`):
 ```
-FACEBOOK_EMAIL=you@example.com
-FACEBOOK_PASSWORD=yourpassword
+TINDER_PHONE=611122334
 ```
 
 **Swipe signal** — a single `Keys.ARROW_LEFT` keystroke sent to `<body>`. Tinder maps this
@@ -392,12 +396,21 @@ Copy `.env.example` to `.env` and fill in values.
 
 | Variable | Required | Description |
 |---|---|---|
-| `FACEBOOK_EMAIL` | Yes | Facebook account email used to log into Tinder |
-| `FACEBOOK_PASSWORD` | Yes | Facebook account password |
+| `TINDER_PHONE` | Yes | Phone number connected to your Tinder account (local format, e.g. `611122334`) |
+| `CHROME_PROFILE_DIR` | No | Override path for the persistent Chrome profile directory |
 
 ---
 
 ## 13. Design decisions
+
+**Persistent Chrome profile.** Chrome is launched with `--user-data-dir` pointing to
+`advanced/.chrome_profile/`. Cookies and login sessions survive between runs. On the second
+run, if Tinder's session cookie is still valid, the login flow is skipped entirely.
+
+**Session detection via URL redirect.** The bot navigates directly to `tinder.com/app/recs`.
+If the URL stays on `/app`, the session is live. If Tinder redirects back to the home page,
+the session has expired and the login flow runs. This is more reliable than searching for
+DOM elements that may change with Tinder's frequent frontend deployments.
 
 **`config.py` — zero magic numbers / inline XPaths.** Tinder's DOM changes frequently.
 Centralising every XPath and delay in one file means a broken selector requires changing
@@ -411,41 +424,30 @@ REPL without running the full flow.
 credentials; these are redacted in the committed copy. The advanced build reads from
 `os.getenv()` so nothing sensitive can be accidentally committed.
 
-**`.env.example` committed, `.env` gitignored.** Documents exactly which variables are
-needed without leaking values. New contributors copy the example and fill it in.
-
-**`Path(__file__).parent` for all paths.** `.env` is loaded relative to `main.py`'s own
-directory, so the build works whether launched from `menu.py` (via `subprocess.run`) or
-directly from the terminal.
+**Short timeouts for optional elements.** Cookie banners, popups, and location prompts use a
+3–4 s timeout rather than the global 20 s. When already logged in these elements never
+appear; a short timeout means the bot doesn't stall for up to a minute waiting for them.
 
 **`_click_if_present` for optional popups.** Post-login popup sequence is non-deterministic
 — Tinder sometimes shows all three, sometimes one, sometimes none. Using a helper that
 catches `TimeoutException` silently means the sequence always completes regardless.
 
-**`_js_click` fallback.** Several Tinder and Facebook buttons are overlapped by other DOM
-elements and reject normal Selenium clicks. `driver.execute_script("arguments[0].click()")`
-bypasses the interactability check and is a reliable fallback.
+**`_js_click` fallback.** Several Tinder buttons are overlapped by other DOM elements and
+reject normal Selenium clicks. `driver.execute_script("arguments[0].click()")` bypasses the
+interactability check and is a reliable fallback.
 
 **`finally: bot.quit()`.** If any step in the login flow raises an unhandled exception, the
 browser closes cleanly instead of leaving a zombie Chrome process.
 
-**Manual `resume` pause.** Facebook's CAPTCHA and two-factor prompts cannot be automated
-reliably. The pause lets the user handle them manually without restarting the script.
+**Manual `resume` pause.** Tinder's SMS verification cannot be automated. The pause lets
+the user enter the code manually without restarting the script.
 
 **`while True` loop, not recursion.** The swipe loop in `main.py` is a plain `while True`
 with `time.sleep`. No stack growth, no re-entrant calls.
 
-**`try/except` per iteration, not around the whole loop.** A single swipe failure (e.g.,
-match popup) does not kill the bot — the exception is caught, the popup is cleared, and the
-next iteration starts immediately.
-
 **No GitHub Actions workflow.** This bot requires an interactive browser session, a manual
-CAPTCHA step, and runs indefinitely. None of these characteristics are compatible with CI.
+SMS step, and runs indefinitely. None of these characteristics are compatible with CI.
 Run it locally.
-
-**`sys.path.insert` in `bot.py` and `main.py`.** Ensures sibling imports (`import config`,
-`from bot import TinderBot`) resolve correctly whether the scripts are run directly or
-launched by `menu.py` via `subprocess.run`.
 
 ---
 
@@ -458,7 +460,6 @@ Built as Day 50 of [100 Days of Code: The Complete Python Pro Bootcamp](https://
 - Disabling browser notifications via `prefs` experimental option
 - `WebDriverWait` + `expected_conditions` for robust element waiting
 - Locator strategies: XPath, CSS selector, element ID, tag name
-- Multi-window automation (`window_handles`, `switch_to.window`)
 - JavaScript execution for clicks on overlapped elements
 - Keyboard simulation with `Keys.ARROW_LEFT`
 - `try/except TimeoutException` for optional UI elements
@@ -468,7 +469,9 @@ Built as Day 50 of [100 Days of Code: The Complete Python Pro Bootcamp](https://
 - Object-oriented encapsulation (`TinderBot` class)
 - Single-responsibility module layout (`config` / `bot` / `main`)
 - Environment-variable credential management with `python-dotenv`
-- Internal helper methods (`_js_click`, `_click_if_present`)
+- Persistent Chrome profiles for session reuse across runs
+- URL-based session detection to skip login when already authenticated
+- Internal helper methods (`_js_click`, `_click_if_present`, `_click_first_present`)
 - Clean resource teardown with `finally`
 
 See [docs/COURSE_NOTES.md](docs/COURSE_NOTES.md) for the full concept breakdown.
@@ -479,9 +482,10 @@ See [docs/COURSE_NOTES.md](docs/COURSE_NOTES.md) for the full concept breakdown.
 
 | Module | Used in | Purpose |
 |---|---|---|
+| `undetected-chromedriver` | `advanced/bot.py` | Launches Chrome in a way that avoids Tinder's bot detection |
 | `selenium` | `original/`, `advanced/bot.py` | Browser automation — drives Chrome |
 | `python-dotenv` | `advanced/main.py` | Loads `.env` into `os.environ` |
-| `os` | `advanced/main.py`, `menu.py` | Reads env vars; clears terminal |
+| `os` | `advanced/config.py`, `advanced/main.py`, `menu.py` | Reads env vars; clears terminal |
 | `sys` | `advanced/main.py`, `advanced/bot.py`, `menu.py` | `sys.path.insert`, `sys.executable` |
 | `time` | `original/`, `advanced/bot.py`, `advanced/main.py` | `time.sleep` for rate limiting |
 | `pathlib.Path` | `advanced/main.py`, `advanced/bot.py`, `menu.py` | Portable file paths |
