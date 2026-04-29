@@ -181,7 +181,10 @@ class TinderBot:
 
     def quit(self):
         """Close the browser."""
-        self.driver.quit()
+        try:
+            self.driver.quit()
+        except Exception:
+            pass
 
     # ------------------------------------------------------------------
     # INTERNAL HELPERS
