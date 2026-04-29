@@ -126,23 +126,20 @@ class TinderBot:
         raise RuntimeError("Could not find Next button on phone number screen.")
 
     def redact_phone_from_page(self):
-        """Wait for the OTP screen to render, then replace the phone number with asterisks."""
-        masked = "*" * max(0, len(self._phone) - 3) + self._phone[-3:]
-        try:
-            # Wait until Tinder has rendered the phone number on screen
-            WebDriverWait(self.driver, 8).until(
-                lambda d: self._phone in d.page_source
-            )
-        except TimeoutException:
-            return
+        """Inject a MutationObserver that blurs any element containing the phone number."""
         self.driver.execute_script("""
-            var phone = arguments[0], masked = arguments[1];
-            document.querySelectorAll('*').forEach(function(el) {
-                if (!el.children.length && el.textContent.includes(phone)) {
-                    el.textContent = el.textContent.replaceAll(phone, masked);
-                }
-            });
-        """, self._phone, masked)
+            var phone = arguments[0];
+            function blurPhone() {
+                document.querySelectorAll('*').forEach(function(el) {
+                    if (!el.children.length && el.textContent.includes(phone)) {
+                        el.style.filter = 'blur(6px)';
+                        el.style.userSelect = 'none';
+                    }
+                });
+            }
+            blurPhone();
+            new MutationObserver(blurPhone).observe(document.body, {childList: true, subtree: true});
+        """, self._phone)
 
     # ------------------------------------------------------------------
     # POST-LOGIN TINDER POPUPS
