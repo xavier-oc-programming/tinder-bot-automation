@@ -25,6 +25,8 @@ class TinderBot:
             {
                 "profile.default_content_setting_values.notifications": 2,  # block
                 "profile.default_content_setting_values.geolocation": 1,    # allow
+                "credentials_enable_service": False,                         # no save-password popup
+                "profile.password_manager_enabled": False,
             },
         )
         options.add_argument(f"--user-data-dir={config.CHROME_PROFILE_DIR}")
@@ -122,6 +124,18 @@ class TinderBot:
             except TimeoutException:
                 continue
         raise RuntimeError("Could not find Next button on phone number screen.")
+
+    def redact_phone_from_page(self):
+        """Replace the phone number in Tinder's OTP confirmation text with asterisks."""
+        masked = "*" * max(0, len(self._phone) - 3) + self._phone[-3:]
+        self.driver.execute_script("""
+            var phone = arguments[0], masked = arguments[1];
+            document.querySelectorAll('*').forEach(function(el) {
+                if (!el.children.length && el.textContent.includes(phone)) {
+                    el.textContent = el.textContent.replaceAll(phone, masked);
+                }
+            });
+        """, self._phone, masked)
 
     # ------------------------------------------------------------------
     # POST-LOGIN TINDER POPUPS

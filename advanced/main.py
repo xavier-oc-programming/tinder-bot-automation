@@ -46,6 +46,7 @@ def main():
             bot.click_login_with_phone()
             bot.enter_phone_number()
             bot.click_phone_next()
+            bot.redact_phone_from_page()
 
             # --- Manual pause: enter the SMS code in the browser, then type 'resume' ---
             print(f"SMS code sent to {mask_phone(phone)}. Enter it in the browser, then type 'resume'.")
