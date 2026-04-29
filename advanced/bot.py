@@ -100,6 +100,7 @@ class TinderBot:
                 phone_input = fast.until(
                     EC.presence_of_element_located((By.CSS_SELECTOR, css))
                 )
+                self.driver.execute_script("arguments[0].type='password';", phone_input)
                 self.driver.execute_script("arguments[0].focus();", phone_input)
                 phone_input.clear()
                 phone_input.send_keys(self._phone)
